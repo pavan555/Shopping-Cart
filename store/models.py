@@ -29,6 +29,10 @@ class Product(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotions, blank=True)
 
+    class Meta:
+        db_table="store_products"
+        indexes = [models.Index(fields=["name", "slug"], name="search_product_idx")]
+
 
 
 class Customer(models.Model):
