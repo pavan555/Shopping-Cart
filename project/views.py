@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse
 from django.db.models import Q, F
+from django.db.models.aggregates import Count, Min, Max, Avg, Sum
 from store.models import Product, OrderItem, Order
 
 # Create your views here.
@@ -44,3 +45,14 @@ def get_last_5_orders(request):
 def say_goodbye_to_my_project(request):
     goodbye_message = "Goodbye from Project app! See you again!"
     return render(request, 'bye.html', {'goodbye_message': goodbye_message})
+
+
+def aggregate_example(request):
+    result = Product.objects.aggregate(
+        total_inventory_count = Sum('inventory'),
+        min_price = Min('unit_price'),
+        max_price = Max('unit_price'),
+        total_products = Count('id'),
+        avg_price = Avg('unit_price')
+    )
+    return render(request, 'aggregate.html', {'result': result, 'name': 'Products'})
