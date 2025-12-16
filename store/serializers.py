@@ -37,7 +37,7 @@ class CollectionModelSerializer(serializers.ModelSerializer):
         model = Collection
         fields = ['id', 'title', 'products_count']
     
-    products_count = serializers.IntegerField(required=False) 
+    products_count = serializers.IntegerField(required=False, read_only=True) 
     # required=False or read_only=True because it's an annotated field, not a model field
     
     
