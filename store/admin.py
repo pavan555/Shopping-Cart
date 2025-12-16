@@ -38,6 +38,7 @@ class CustomerModelAdmin(admin.ModelAdmin):
             orders_count=Count('customer_orders')
         )
     
+    
 
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -62,6 +63,15 @@ class InventoryFilter(admin.SimpleListFilter):
 
 @admin.register(models.Product)
 class ProductModelAdmin(admin.ModelAdmin):
+    prepopulated_fields = {
+        'slug': ['name']
+    } # to prepopulate slug field based on name field
+    autocomplete_fields = ['collection'] # to enable autocomplete for foreign key fields, because collection can have many entries 
+    # like many 1000s of collections, so its better to have autocomplete (search) rather than getting all values dropdown
+    exclude = ['promotions'] 
+    # form editing -> adding/editing products won't show if we add in exclude,
+    # if we add in fields -> only show those fields in the form
+
     actions = ['clear_inventory']
     list_display = ['name', 'unit_price', 'inventory_status', 'collection_title', 'last_updated']
     list_editable = ['unit_price']
@@ -94,6 +104,7 @@ class ProductModelAdmin(admin.ModelAdmin):
 
 @admin.register(models.Order)
 class OrderModelAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['customer']
     list_display = ['id', 'placed_at', 'customer_full_name', 'payment_status']
     list_select_related = ['customer']
     list_editable = ['payment_status']
@@ -108,6 +119,7 @@ class OrderModelAdmin(admin.ModelAdmin):
 class CollectionAdmin(admin.ModelAdmin):
     list_display = ['title', 'count']
     list_per_page = 10
+    search_fields = ['title']
 
     @admin.display(ordering='products_count', description='Products Count')
     def count(self, collection):

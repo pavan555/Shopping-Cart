@@ -51,6 +51,9 @@ class Customer(models.Model):
     birth_date = models.DateField(null=True)
     membership = models.CharField(max_length=1, choices=MEMBER_SHIP_CHOICES, default=MEMBER_SHIP_CHOICES[2][0])
 
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
 
 class OrderItem(models.Model):
     #orderitem_set -> reverse relation
