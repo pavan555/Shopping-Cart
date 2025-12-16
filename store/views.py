@@ -14,9 +14,9 @@ from .serializers import ProductSerializer, ProductModelSerializer
 def product_list(request):
     if request.method == 'POST':
         serializer = ProductModelSerializer(data = request.data)
-        if serializer.is_valid():
-            return Response(serializer.validated_data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     elif request.method == 'GET':
         query_set = Product.objects.select_related('collection').all()
         serializer = ProductModelSerializer(query_set, many=True, context={'request': request})
