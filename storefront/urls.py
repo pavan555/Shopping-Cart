@@ -25,4 +25,6 @@ admin.site.index_title = "Welcome to Storefront Admin Portal"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('project/', include('project.urls')),
+    path('store/', include('store.urls')),
+    # path('api-auth/', include('rest_framework.urls'))
 ] + debug_toolbar_urls()
