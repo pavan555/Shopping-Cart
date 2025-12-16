@@ -1,12 +1,12 @@
 from urllib.parse import urlencode
 from django.contrib import admin, messages
-
-from tags.models import TaggedItem
-from . import models
 from django.urls import reverse
 from django.db.models import Count
 from django.utils.html import format_html
 from django.contrib.contenttypes.admin import GenericTabularInline
+
+from tags.models import TaggedItem # we need to decouple to extend pluggable app
+from . import models
 
 # Register your models here.
 
