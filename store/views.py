@@ -5,22 +5,31 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin, DestroyModelMixin, RetrieveModelMixin
+
 from .models import Collection, Product
 from .serializers import CollectionModelSerializer, ProductModelSerializer
 
 
 # Create your views here.
-class ProductView(APIView):
+class ProductView(APIView, ListModelMixin, CreateModelMixin):
+    def get_queryset(self):
+        return Product.objects.select_related('collection').all()
+    
+    def filter_queryset(self, queryset):
+        return queryset
+    
+    def paginate_queryset(self, queryset):
+        return None
+    
+    def get_serializer(self, *args, **kwargs):
+        return ProductModelSerializer(*args, **kwargs)
+    
     def get(self, request):
-        query_set = Product.objects.select_related('collection').all()
-        serializer = ProductModelSerializer(query_set, many=True, context={'request': request})
-        return Response(serializer.data)
+        return self.list(request)
     
     def post(self, request):
-        serializer = ProductModelSerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return self.create(request)
 
 class ProductDetailView(APIView):
 
