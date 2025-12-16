@@ -1,5 +1,5 @@
 from urllib.parse import urlencode
-from django.contrib import admin
+from django.contrib import admin, messages
 from . import models
 from django.urls import reverse
 from django.db.models import Count
@@ -62,6 +62,7 @@ class InventoryFilter(admin.SimpleListFilter):
 
 @admin.register(models.Product)
 class ProductModelAdmin(admin.ModelAdmin):
+    actions = ['clear_inventory']
     list_display = ['name', 'unit_price', 'inventory_status', 'collection_title', 'last_updated']
     list_editable = ['unit_price']
     list_per_page = 10
@@ -81,6 +82,15 @@ class ProductModelAdmin(admin.ModelAdmin):
         elif product.inventory < 10:
             return "Low"
         return "Ok"
+    
+    @admin.action(description="Clear Inventory of selected products")
+    def clear_inventory(self, request, queryset):
+        count = queryset.update(inventory=0)
+        self.message_user(
+            request,
+            f"{count} products inventory were successfully cleared.",
+            messages.SUCCESS
+        )
 
 @admin.register(models.Order)
 class OrderModelAdmin(admin.ModelAdmin):
