@@ -29,3 +29,22 @@ class ProductSerializer(serializers.Serializer):
         if obj.unit_price > 9:
             return obj.unit_price * Decimal(0.9)  # 10% discount
         return obj.unit_price
+
+
+class ProductModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'description', 'unit_price', 'discounted_price', 'collection']
+    
+    # collection = serializers.HyperlinkedRelatedField(
+    #     queryset=Collection.objects.all(),
+    #     view_name='collection-details'
+    # )
+
+    discounted_price = serializers.SerializerMethodField(method_name='get_discounted_price')
+
+
+    def get_discounted_price(self, obj: Product):
+        if obj.unit_price > 9:
+            return obj.unit_price * Decimal(0.9)  # 10% discount
+        return obj.unit_price
