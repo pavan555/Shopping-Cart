@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MinValueValidator
 # Create your models here.
 
 
@@ -25,11 +25,13 @@ class Collection(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(null=True, blank=True)
     slug = models.SlugField()
     # Price can be decimal with two decimal places and maximum 3 digits before decimal
-    unit_price = models.DecimalField(max_digits=5, decimal_places=2)
-    inventory = models.IntegerField()
+    unit_price = models.DecimalField(max_digits=5, decimal_places=2, validators=[
+        MinValueValidator(1)
+    ])
+    inventory = models.IntegerField(validators=[MinValueValidator(0)])
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)

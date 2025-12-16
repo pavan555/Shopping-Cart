@@ -68,7 +68,7 @@ class ProductModelAdmin(admin.ModelAdmin):
     } # to prepopulate slug field based on name field
     autocomplete_fields = ['collection'] # to enable autocomplete for foreign key fields, because collection can have many entries 
     # like many 1000s of collections, so its better to have autocomplete (search) rather than getting all values dropdown
-    exclude = ['promotions'] 
+    # exclude = ['promotions'] 
     # form editing -> adding/editing products won't show if we add in exclude,
     # if we add in fields -> only show those fields in the form
 
