@@ -31,10 +31,21 @@ class ProductSerializer(serializers.Serializer):
         return obj.unit_price
 
 
+
+class CollectionModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collection
+        fields = ['id', 'title', 'products_count']
+    
+    products_count = serializers.IntegerField(required=False) 
+    # required=False or read_only=True because it's an annotated field, not a model field
+    
+    
+
 class ProductModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'slug', 'inventory', 'unit_price', 'discounted_price', 'collection', ]
+        fields = ['id', 'name', 'description', 'slug', 'inventory', 'unit_price', 'discounted_price', 'collection']
     
     # collection = serializers.HyperlinkedRelatedField(
     #     queryset=Collection.objects.all(),
