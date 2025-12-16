@@ -11,12 +11,16 @@ from .serializers import ProductSerializer
 
 @api_view()
 def product_list(request):
-    query_set = Product.objects.all()
-    serializer = ProductSerializer(query_set, many=True)
+    query_set = Product.objects.select_related('collection').all()
+    serializer = ProductSerializer(query_set, many=True, context={'request': request})
     return Response(serializer.data)
 
 @api_view()
 def product_detail(request, product_id):
     product = get_object_or_404(Product, pk=product_id)
-    serializer = ProductSerializer(product)
+    serializer = ProductSerializer(product, context = {'request': request})
     return Response(serializer.data)
+
+@api_view()
+def get_collection_details(request, pk):
+    return Response(f"Details of collection with id: {pk}")
