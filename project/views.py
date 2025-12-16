@@ -1,7 +1,10 @@
 from django.shortcuts import render, HttpResponse
-from django.db.models import Q, F
+from django.db.models import Q, F, Func, Value
+from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Min, Max, Avg, Sum
-from store.models import Product, OrderItem, Order
+from django.contrib.contenttypes.models import ContentType
+from store.models import Product, OrderItem, Order, Customer
+from tags.models import TaggedItem
 
 # Create your views here.
 
@@ -9,6 +12,12 @@ from store.models import Product, OrderItem, Order
 def say_hello_to_my_project(request):
     query_set = Product.objects.filter(Q(name__icontains="coffee") | Q(unit_price__gte=20, inventory__gte=25))
     products = list(Product.objects.filter(unit_price__gt=F('inventory')))
+
+    customer_query_set = Customer.objects.annotate(
+        full_name=Func(F('first_name'), F('last_name'), function="CONCAT_WS", template="%(function)s(' ',%(expressions)s)"),
+        full_name_without_func=Concat('first_name', Value(' '), 'last_name')
+    )
+    print(list(customer_query_set))
     # count = Product.objects.filter(name__icontains="coffee").count()
     # print(count)
 
@@ -55,4 +64,12 @@ def aggregate_example(request):
         total_products = Count('id'),
         avg_price = Avg('unit_price')
     )
+    return get_data_from_contenttype_example(request)
     return render(request, 'aggregate.html', {'result': result, 'name': 'Products'})
+
+def get_data_from_contenttype_example(request):
+    query_set = TaggedItem.objects\
+                        .get_tag_items_for_obj_type(Product, object_id=1) \
+                          .select_related('tag') \
+                          
+    return render(request, 'aggregate.html', {'tags': list(query_set), 'name': 'Content Type'})
