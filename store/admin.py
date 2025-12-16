@@ -5,7 +5,6 @@ from django.db.models import Count
 from django.utils.html import format_html
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-from tags.models import TaggedItem # we need to decouple to extend pluggable app
 from . import models
 
 # Register your models here.
@@ -64,10 +63,6 @@ class InventoryFilter(admin.SimpleListFilter):
        return queryset
 
 
-class TagItemInline(GenericTabularInline):
-    model = TaggedItem
-    extra = 1
-    autocomplete_fields = ['tag']
 
 
 @admin.register(models.Product)
@@ -80,9 +75,6 @@ class ProductModelAdmin(admin.ModelAdmin):
     # exclude = ['promotions'] 
     # form editing -> adding/editing products won't show if we add in exclude,
     # if we add in fields -> only show those fields in the form
-
-
-    inlines = [TagItemInline]
 
     actions = ['clear_inventory']
     list_display = ['name', 'unit_price', 'inventory_status', 'collection_title', 'last_updated']
