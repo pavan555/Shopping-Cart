@@ -1,9 +1,12 @@
 from urllib.parse import urlencode
 from django.contrib import admin, messages
+
+from tags.models import TaggedItem
 from . import models
 from django.urls import reverse
 from django.db.models import Count
 from django.utils.html import format_html
+from django.contrib.contenttypes.admin import GenericTabularInline
 
 # Register your models here.
 
@@ -61,6 +64,12 @@ class InventoryFilter(admin.SimpleListFilter):
        return queryset
 
 
+class TagItemInline(GenericTabularInline):
+    model = TaggedItem
+    extra = 1
+    autocomplete_fields = ['tag']
+
+
 @admin.register(models.Product)
 class ProductModelAdmin(admin.ModelAdmin):
     prepopulated_fields = {
@@ -71,6 +80,9 @@ class ProductModelAdmin(admin.ModelAdmin):
     # exclude = ['promotions'] 
     # form editing -> adding/editing products won't show if we add in exclude,
     # if we add in fields -> only show those fields in the form
+
+
+    inlines = [TagItemInline]
 
     actions = ['clear_inventory']
     list_display = ['name', 'unit_price', 'inventory_status', 'collection_title', 'last_updated']
@@ -102,9 +114,22 @@ class ProductModelAdmin(admin.ModelAdmin):
             messages.SUCCESS
         )
 
+
+class OrderItemsInlineEdit(admin.TabularInline):
+    model = models.OrderItem
+    extra = 0
+    min_num = 1
+    max_num = 3
+    autocomplete_fields = ['product']
+
+
+
 @admin.register(models.Order)
 class OrderModelAdmin(admin.ModelAdmin):
+    inlines = [OrderItemsInlineEdit]
+
     autocomplete_fields = ['customer']
+    
     list_display = ['id', 'placed_at', 'customer_full_name', 'payment_status']
     list_select_related = ['customer']
     list_editable = ['payment_status']

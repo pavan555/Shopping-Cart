@@ -61,7 +61,7 @@ class OrderItem(models.Model):
     #orderitem_set -> reverse relation
     order = models.ForeignKey('Order', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    units = models.PositiveSmallIntegerField()
+    units = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     price = models.DecimalField(max_digits=5, decimal_places=2)
 
 class Order(models.Model):
