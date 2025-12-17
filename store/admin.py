@@ -12,11 +12,12 @@ from . import models
 @admin.register(models.Customer)
 class CustomerModelAdmin(admin.ModelAdmin):
     # Dynamically get all field names from the model
-    ordering = ['first_name', 'last_name']
+    # ordering = ['first_name', 'last_name']
     list_display = ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'membership', 'customer_address', 'orders_count']
     empty_value_display = "-empty-"
     list_editable=['membership']
-    search_fields = ['first_name__istartswith', 'last_name__istartswith']
+    list_select_related = ['user']
+    search_fields = ['user__first_name__istartswith', 'user__last_name__istartswith']
 
 
     list_select_related = True
