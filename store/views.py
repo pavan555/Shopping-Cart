@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.db.models import Count
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
@@ -9,20 +10,16 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.viewsets import ModelViewSet
 from .models import Collection, OrderItem, Product, Review
 from .serializers import CollectionModelSerializer, ProductModelSerializer, ReviewModelSerializer
-
+from .filters import ProductFilter
 
 class ProductViewSet(ModelViewSet):
-    # queryset = Product.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductModelSerializer    
     lookup_field = "id"
     lookup_url_kwarg = "product_id"
-
-    def get_queryset(self):
-        queryset = Product.objects.all()
-        collection_id = self.request.query_params.get("collection_id")
-        if collection_id is not None:
-            queryset = queryset.filter(collection_id=collection_id)
-        return queryset
+    filter_backends = [DjangoFilterBackend]
+    # filterset_fields = ['collection_id', 'unit_price']
+    filterset_class = ProductFilter
 
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['product_id']).count() > 0:
