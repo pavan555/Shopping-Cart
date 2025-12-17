@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.pagination import PageNumberPagination
+
 from .models import Collection, OrderItem, Product, Review
 from .serializers import CollectionModelSerializer, ProductModelSerializer, ReviewModelSerializer
 from .filters import ProductFilter
@@ -14,8 +16,11 @@ class ProductViewSet(ModelViewSet):
     lookup_field = "id"
     lookup_url_kwarg = "product_id"
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    # filterset_fields = ['collection_id', 'unit_price']
     filterset_class = ProductFilter
+    pagination_class = PageNumberPagination
+
+    # filterset_fields = ['collection_id', 'unit_price']
+    
     search_fields = ['^name', 'description']
     ordering_fields = ['last_updated', 'name', 'unit_price']
 
