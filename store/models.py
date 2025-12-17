@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
 
 
@@ -42,6 +42,20 @@ class Product(models.Model):
     
     class Meta:
         ordering = ['last_updated', 'name']
+
+
+class Review(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
+    ratings = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review for {self.product.name} - {self.ratings} stars"
+    
+    class Meta:
+        ordering = ['-created_at']
 
 
 

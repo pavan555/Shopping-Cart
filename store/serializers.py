@@ -1,6 +1,6 @@
 
 from decimal import Decimal
-from .models import Product, Collection
+from .models import Product, Collection, Review
 from rest_framework import serializers
 
 
@@ -59,3 +59,20 @@ class ProductModelSerializer(serializers.ModelSerializer):
         if obj.unit_price > 9:
             return obj.unit_price * Decimal(0.9)  # 10% discount
         return obj.unit_price
+    
+
+class ReviewModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'ratings', 'name', 'description', 'created_at', 'rating_text']
+    
+    rating_text = serializers.SerializerMethodField(method_name="stars_text")
+
+    def stars_text(self, obj: Review):
+        return "⭐️" * obj.ratings
+    
+    def create(self, validated_data):
+        product_id = self.context['product_id']
+        validated_data['product_id'] = product_id
+        return super().create(validated_data)
+    
