@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
@@ -103,13 +104,18 @@ class Address(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey('Cart', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    units = models.PositiveSmallIntegerField()
+    cart = models.ForeignKey('Cart', on_delete=models.CASCADE, related_name="items")
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="cart_items")
+    units = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
     price = models.DecimalField(max_digits=5, decimal_places=2)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['cart', 'product'], name='unique_cart_product')
+        ]
 
 class Cart(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False) #auto increment id is easily guessable, using UUID makes it hard to guess
     created_at = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
 
