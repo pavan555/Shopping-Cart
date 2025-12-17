@@ -1,6 +1,7 @@
 
 from decimal import Decimal
-from .models import Product, Collection, Review
+from django.db.models import Sum
+from .models import Cart, CartItem, Product, Collection, Review
 from rest_framework import serializers
 
 
@@ -75,4 +76,72 @@ class ReviewModelSerializer(serializers.ModelSerializer):
         product_id = self.context['product_id']
         validated_data['product_id'] = product_id
         return super().create(validated_data)
+
+
+class SimpleProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'unit_price']
+
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product', 'units', 'price']
+
+    id = serializers.IntegerField(read_only=True)
+    price = serializers.DecimalField(max_digits=5, decimal_places=2, read_only=True)
+    product = SimpleProductSerializer()
     
+    def calculate_total_price(self, obj: CartItem):
+        return obj.units * obj.product.unit_price
+
+
+
+
+class CartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['id', 'created_at', 'items', 'total_price']
+    
+    id = serializers.UUIDField(read_only=True)
+    items = CartItemSerializer(many=True, read_only=True)
+    total_price = serializers.SerializerMethodField(method_name='calculate_total_price')
+
+
+    def calculate_total_price(self, obj: Cart):
+        return sum([item.units * item.product.unit_price for item in obj.items.all()])
+    
+
+class AddCartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['product_id', 'units']
+    product_id = serializers.IntegerField()
+
+    def validate_product_id(self, value):
+        if not Product.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("No product with the given ID was found.")
+        return value
+
+    def create(self, validated_data):
+        cart_id = self.context['cart_pk']
+        product_id = validated_data['product_id']
+        units = validated_data['units']
+        try:
+            cart_item = CartItem.objects.filter(cart_id=cart_id, product_id=product_id).get()
+            units += cart_item.units
+            price = 10 * units # static as we're are already calculating price when retrieving so this is useless
+            self.instance = CartItem.objects.filter(cart_id=cart_id, product_id=product_id).update(units=units, price=price)
+        except CartItem.DoesNotExist:
+            price = 10 * units # static as we're are already calculating price when retrieving so this is useless
+            self.instance = CartItem.objects.create(cart_id=cart_id, price=price, **validated_data)
+        
+        return self.instance
+    
+class UpdateCartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['units']
+        

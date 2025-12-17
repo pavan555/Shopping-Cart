@@ -113,6 +113,9 @@ class CartItem(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['cart', 'product'], name='unique_cart_product')
         ]
+    
+    def __str__(self):
+        return f"CartItem: {self.product.name} (x{self.units}) in Cart {self.cart.id}"
 
 class Cart(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False) #auto increment id is easily guessable, using UUID makes it hard to guess
