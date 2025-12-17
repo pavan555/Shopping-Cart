@@ -12,10 +12,17 @@ from .serializers import CollectionModelSerializer, ProductModelSerializer, Revi
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    # queryset = Product.objects.all()
     serializer_class = ProductModelSerializer    
     lookup_field = "id"
     lookup_url_kwarg = "product_id"
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        collection_id = self.request.query_params.get("collection_id")
+        if collection_id is not None:
+            queryset = queryset.filter(collection_id=collection_id)
+        return queryset
 
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['product_id']).count() > 0:
