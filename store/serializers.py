@@ -22,7 +22,7 @@ class ProductSerializer(serializers.Serializer):
 
     collection = serializers.HyperlinkedRelatedField(
         queryset=Collection.objects.all(),
-        view_name='collection-details'
+        view_name='collection-detail'
     )
 
     def calculate_discounted_price(self, obj: Product):
