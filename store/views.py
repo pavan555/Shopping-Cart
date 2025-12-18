@@ -7,6 +7,8 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.pagination import PageNumberPagination
+
+from .permissions import IsAdminOrReadOnly
 from .models import Cart, CartItem, Collection, Customer, OrderItem, Product, Review
 from .serializers import (
     AddCartItemSerializer,
@@ -29,6 +31,7 @@ class ProductViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = ProductFilter
     pagination_class = PageNumberPagination
+    permission_classes = [IsAdminOrReadOnly]
 
     # filterset_fields = ['collection_id', 'unit_price']
 
@@ -49,6 +52,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.all().annotate(products_count=Count("products"))
     serializer_class = CollectionModelSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         if Product.objects.filter(collection_id=kwargs["pk"]).count() > 0:
