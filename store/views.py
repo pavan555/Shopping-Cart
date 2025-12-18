@@ -2,7 +2,7 @@ from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, mixins
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -129,17 +129,12 @@ class CartItemViewSet(CreateDestroyViewSet):
         return {"cart_pk": self.kwargs["cart_pk"]}
 
 
-class CustomerViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
+class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
-    def get_permissions(self):
-        if self.request.method == "GET" and self.action != "me":
-            return [AllowAny()]
-        return [IsAuthenticated()]
-
-    @action(detail=False, methods=["GET", "PUT"])
+    @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAuthenticated])
     def me(self, request):
         userid = request.user.id
         (customer, _created) = Customer.objects.get_or_create(user_id = userid)
