@@ -26,5 +26,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('project/', include('project.urls')),
     path('store/', include('store.urls')),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
     # path('api-auth/', include('rest_framework.urls'))
 ] + debug_toolbar_urls()

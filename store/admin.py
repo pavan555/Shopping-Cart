@@ -13,6 +13,7 @@ from . import models
 class CustomerModelAdmin(admin.ModelAdmin):
     # Dynamically get all field names from the model
     # ordering = ['first_name', 'last_name']
+    autocomplete_fields = ['user']
     list_display = ['first_name', 'last_name', 'email', 'phone', 'birth_date', 'membership', 'customer_address', 'orders_count']
     empty_value_display = "-empty-"
     list_editable=['membership']
@@ -128,9 +129,9 @@ class OrderModelAdmin(admin.ModelAdmin):
     list_editable = ['payment_status']
     list_per_page = 10
 
-    @admin.display(ordering='customer__first_name')
+    @admin.display(ordering='customer__user__first_name')
     def customer_full_name(self, order):
-        return f"{order.customer.first_name} {order.customer.last_name}"
+        return f"{order.customer.user.first_name} {order.customer.user.last_name}"
 
 
 @admin.register(models.Collection)
