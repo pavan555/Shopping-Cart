@@ -1,6 +1,7 @@
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, mixins
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -126,3 +127,15 @@ class CartItemViewSet(CreateDestroyViewSet):
 class CustomerViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, GenericViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+
+    @action(detail=False, methods=["GET", "PUT"])
+    def me(self, request):
+        userid = request.user.id
+        (customer, _created) = Customer.objects.get_or_create(user_id = userid)
+        if request.method == "GET":
+            serializer = CustomerSerializer(customer)
+        elif request.method == "PUT":
+            serializer = CustomerSerializer(customer, data = request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response(serializer.data)
