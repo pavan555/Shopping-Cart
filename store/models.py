@@ -82,6 +82,11 @@ class Customer(models.Model):
     def email(self):
         return self.user.email
     
+    class Meta:
+        permissions = [
+            ('view_history_info', 'Can view customer history info')
+        ]
+    
 
 
 class OrderItem(models.Model):

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.pagination import PageNumberPagination
 
-from .permissions import IsAdminOrReadOnly
+from .permissions import CustomerHistoryDjangoPermission, IsAdminOrReadOnly
 from .models import Cart, CartItem, Collection, Customer, OrderItem, Product, Review
 from .serializers import (
     AddCartItemSerializer,
@@ -133,6 +133,10 @@ class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     permission_classes = [IsAdminUser]
+
+    @action(detail=True, permission_classes=[CustomerHistoryDjangoPermission])
+    def history(self, request, pk):
+        return Response(f"This is customer {pk} history API")
 
     @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAuthenticated])
     def me(self, request):
