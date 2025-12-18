@@ -1,7 +1,7 @@
 
 from decimal import Decimal
 from django.db.models import Sum
-from .models import Cart, CartItem, Product, Collection, Review
+from .models import Cart, CartItem, Customer, Product, Collection, Review
 from rest_framework import serializers
 
 
@@ -145,3 +145,9 @@ class UpdateCartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ['units']
         
+
+class CustomerSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+    class Meta:
+        model = Customer
+        fields = ['id', 'user_id', 'phone', 'birth_date', 'membership']
