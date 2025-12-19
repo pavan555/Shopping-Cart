@@ -159,7 +159,7 @@ class OrderViewSet(ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
+        if self.request.method in [*SAFE_METHODS, "POST"]:
             return [IsAuthenticated()]
         return [IsAdminUser()]
 

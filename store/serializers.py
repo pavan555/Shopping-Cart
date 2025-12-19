@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework import serializers
 from .models import Cart, CartItem, Customer, Order, OrderItem, Product, Collection, Review
-
+from .signals import order_created
 
 
 class CollectionSerializer(serializers.Serializer):
@@ -130,14 +130,22 @@ class AddCartItemSerializer(serializers.ModelSerializer):
         cart_id = self.context['cart_pk']
         product_id = validated_data['product_id']
         units = validated_data['units']
+        # print("Cart ID:", cart_id, "Product ID:", product_id, "Units:", units)
         try:
             cart_item = CartItem.objects.filter(cart_id=cart_id, product_id=product_id).get()
+            # print("Existing Cart Item:", cart_item)
             units += cart_item.units
             price = 10 * units # static as we're are already calculating price when retrieving so this is useless
-            self.instance = CartItem.objects.filter(cart_id=cart_id, product_id=product_id).update(units=units, price=price)
+            CartItem.objects.filter(cart_id=cart_id, product_id=product_id).update(units=units, price=price)
+            self.instance = cart_item
+            self.instance.units = units
+            self.instance.price = price
         except CartItem.DoesNotExist:
             price = 10 * units # static as we're are already calculating price when retrieving so this is useless
             self.instance = CartItem.objects.create(cart_id=cart_id, price=price, **validated_data)
+        except Exception as e:
+            print("Error:", e)
+            raise e
         
         return self.instance
     
@@ -203,4 +211,6 @@ class CreateOrderSerializer(serializers.Serializer):
         ]
         OrderItem.objects.bulk_create(order_items)
         Cart.objects.filter(pk=cart_id).delete()
+
+        order_created.send_robust(self.__class__, current_order=order)
         return order
