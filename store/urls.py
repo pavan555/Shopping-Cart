@@ -18,6 +18,11 @@ products_router.register('reviews', viewset=views.ReviewViewSet, basename='produ
 
 carts_router = NestedSimpleRouter(router, 'carts', lookup="cart")
 carts_router.register('items', viewset=views.CartItemViewSet, basename='product-reviews')
+
+images_router = NestedSimpleRouter(router, 'products', lookup="product")
+images_router.register('images', viewset=views.ProductImageViewSet, basename='product-images')
+
+
 # pprint(router.urls)
 # pprint(reviews_router.urls)  # For debugging purposes to see the generated URL patterns
 
@@ -26,7 +31,8 @@ carts_router.register('items', viewset=views.CartItemViewSet, basename='product-
 urlpatterns = [
     path('', include(router.urls)),
     path('', include(products_router.urls)),
-    path('', include(carts_router.urls))
+    path('', include(carts_router.urls)),
+    path('', include(images_router.urls)),
     # path('products/', views.ProductView.as_view(), name='product-list'),
     # path('products/<int:product_id>/', views.ProductDetailView.as_view(), name='product-detail'),
     # path('collections/', views.CollectionView.as_view(), name='collections'),

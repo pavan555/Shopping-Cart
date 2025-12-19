@@ -9,7 +9,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.pagination import PageNumberPagination
 
 from .permissions import CustomerHistoryDjangoPermission, IsAdminOrReadOnly
-from .models import Cart, CartItem, Collection, Customer, Order, OrderItem, Product, Review
+from .models import Cart, CartItem, Collection, Customer, Order, OrderItem, Product, ProductImage, Review
 from .serializers import (
     AddCartItemSerializer,
     CartItemSerializer,
@@ -18,6 +18,7 @@ from .serializers import (
     CreateOrderSerializer,
     CustomerSerializer,
     OrderSerializer,
+    ProductImageSerializer,
     ProductModelSerializer,
     ReviewModelSerializer,
     UpdateCartItemSerializer,
@@ -188,3 +189,16 @@ class OrderViewSet(ModelViewSet):
         except Customer.DoesNotExist:
             return Order.objects.none()
         return queryset.filter(customer_id=customer_id)
+
+
+class ProductImageViewSet(ModelViewSet):
+    serializer_class = ProductImageSerializer
+
+    def get_queryset(self):
+        # print("Product PK:", self.kwargs)
+        product_id = self.kwargs['product_product_id']
+        return ProductImage.objects.filter(product_id=product_id)
+
+    def get_serializer_context(self):
+        product_id = self.kwargs['product_product_id']
+        return {'product_id': product_id}
