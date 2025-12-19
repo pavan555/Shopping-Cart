@@ -48,7 +48,7 @@ def get_last_5_order_items(request):
     return render(request, 'orders.html', {'orderitems': last_5_orders})
 
 def get_last_5_orders(request):
-    last_5_orders = Order.objects.select_related('customer').prefetch_related('orderitem_set__product').order_by('-placed_at')[:5]
+    last_5_orders = Order.objects.select_related('customer').prefetch_related('items__product').order_by('-placed_at')[:5]
     return render(request, 'orders.html', {'orderitems': last_5_orders})
 
 def say_goodbye_to_my_project(request):

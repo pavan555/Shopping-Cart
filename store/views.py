@@ -9,13 +9,15 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.pagination import PageNumberPagination
 
 from .permissions import CustomerHistoryDjangoPermission, IsAdminOrReadOnly
-from .models import Cart, CartItem, Collection, Customer, OrderItem, Product, Review
+from .models import Cart, CartItem, Collection, Customer, Order, OrderItem, Product, Review
 from .serializers import (
     AddCartItemSerializer,
     CartItemSerializer,
     CartSerializer,
     CollectionModelSerializer,
+    CreateOrderSerializer,
     CustomerSerializer,
+    OrderSerializer,
     ProductModelSerializer,
     ReviewModelSerializer,
     UpdateCartItemSerializer,
@@ -150,3 +152,27 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
         return Response(serializer.data)
+
+
+class OrderViewSet(ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        return {"user_id": self.request.user.id}
+    
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateOrderSerializer
+        return OrderSerializer
+
+    def get_queryset(self):
+        queryset = Order.objects.select_related("customer").prefetch_related("items__product").all()
+        user = self.request.user
+        if user.is_staff:
+            return queryset
+        try:
+            customer_id = Customer.objects.only("id").get(user_id=user.id)
+        except Customer.DoesNotExist:
+            return Order.objects.none()
+        return queryset.filter(customer_id=customer_id)
