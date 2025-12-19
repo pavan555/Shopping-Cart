@@ -2,7 +2,9 @@ from uuid import uuid4
 from django.conf import settings
 from django.db import models
 from django.contrib import admin
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
+
+from .validators import validate_file_size
 # Create your models here.
 
 
@@ -48,7 +50,8 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='product/images/')
+    image = models.ImageField(upload_to='product/images/', 
+                              validators=[validate_file_size, FileExtensionValidator(allowed_extensions=['jpg', 'svg','png','jpeg'])])
 
 
 class Review(models.Model):
