@@ -28,7 +28,7 @@ from .filters import ProductFilter
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related("images").all()
     serializer_class = ProductModelSerializer
     lookup_field = "id"
     lookup_url_kwarg = "product_id"

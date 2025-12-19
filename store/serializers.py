@@ -42,12 +42,22 @@ class CollectionModelSerializer(serializers.ModelSerializer):
     products_count = serializers.IntegerField(required=False, read_only=True) 
     # required=False or read_only=True because it's an annotated field, not a model field
     
-    
+class ProductImageSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        validated_data['product_id'] = self.context['product_id']
+        return super().create(validated_data)
+
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image'] 
 
 class ProductModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'slug', 'inventory', 'unit_price', 'discounted_price', 'collection']
+        fields = ['id', 'name', 'description', 'slug', 'inventory', 'unit_price', 'discounted_price', 'collection', 'images']
+    
+    images = ProductImageSerializer(many=True, read_only=True)
     
     # collection = serializers.HyperlinkedRelatedField(
     #     queryset=Collection.objects.all(),
@@ -216,12 +226,3 @@ class CreateOrderSerializer(serializers.Serializer):
         return order
     
 
-class ProductImageSerializer(serializers.ModelSerializer):
-
-    def create(self, validated_data):
-        validated_data['product_id'] = self.context['product_id']
-        return super().create(validated_data)
-
-    class Meta:
-        model = ProductImage
-        fields = ['id', 'image']
