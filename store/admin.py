@@ -65,6 +65,19 @@ class InventoryFilter(admin.SimpleListFilter):
        return queryset
 
 
+@admin.register(models.ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['product']
+    list_display = ['id', 'image']
+
+class ProductImageInlineAdmin(admin.TabularInline):
+    model = models.ProductImage
+    readonly_fields = ['thumbnail']
+    
+    def thumbnail(self, instance):
+        if instance.image.name != '':
+            return format_html('<img src="{}" class="thumbnail" />', instance.image.url)
+        return "(No Image)"
 
 
 @admin.register(models.Product)
@@ -107,7 +120,14 @@ class ProductModelAdmin(admin.ModelAdmin):
             f"{count} products inventory were successfully cleared.",
             messages.SUCCESS
         )
-
+    
+    def get_inlines(self, request, obj):
+        return [ProductImageInlineAdmin]
+    
+    class Media:
+        css = {
+            'all': ['store/styles.css'] #all is for all types of media, print for printing, screen for types of screen etc
+        }
 
 class OrderItemsInlineEdit(admin.TabularInline):
     model = models.OrderItem

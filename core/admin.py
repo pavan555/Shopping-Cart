@@ -32,4 +32,6 @@ admin.site.unregister(Product)
 
 @admin.register(Product)
 class CustomProductAdmin(ProductModelAdmin):
-    inlines = [TagItemInline]
+    
+    def get_inlines(self, request, obj):
+        return super().get_inlines(request, obj) + [TagItemInline]
