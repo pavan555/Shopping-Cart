@@ -144,7 +144,7 @@ class CustomerViewSet(ModelViewSet):
     @action(detail=False, methods=["GET", "PUT"], permission_classes=[IsAuthenticated])
     def me(self, request):
         userid = request.user.id
-        (customer, _created) = Customer.objects.get_or_create(user_id = userid)
+        customer = Customer.objects.get(user_id = userid)
         print("Customer:", customer)
         if request.method == "GET":
             serializer = CustomerSerializer(customer)
