@@ -6,3 +6,6 @@ db.sqlite3
 queries/
 
 media/
+*node_modules/
+*.parcel-cache/
+*dist/
