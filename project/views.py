@@ -4,8 +4,29 @@ from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Min, Max, Avg, Sum
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMessage, BadHeaderError, mail_admins
+from templated_email import send_templated_mail
+
 from store.models import Product, OrderItem, Order, Customer
 from tags.models import TaggedItem
+
+def send_template_mail():
+    try:
+        recipient_list = ["admin@storefront.com", "pavan@storefront.com", "user@storefront.com"]
+        send_templated_mail(
+            template_name= "hello",
+            template_prefix="emails/",
+            template_suffix="html",
+            recipient_list=recipient_list,
+            context={
+                "recipient_email_text": ", ".join(recipient_list),
+                "image_url": "http://localhost:8000/media/product/images/sample.png"
+            },
+        )
+    
+    except Exception as e:
+        raise e
+        print("Error sending templated email:", str(e), e)
+        
 
 
 def send_sample_email():
@@ -14,7 +35,7 @@ def send_sample_email():
             subject="Test Email from Storefront",
             body="This is a test email sent from the Storefront application.",
             from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
-            to=["admin@storefront.com", "pavankumarsai66@gmail.com"])
+            to=["admin@storefront.com"])
         message.attach_file('media/product/images/sample.png')
         message.send()
     except BadHeaderError:
@@ -22,11 +43,12 @@ def send_sample_email():
 
 def say_goodbye_to_my_project(request):
     goodbye_message = "Goodbye from Project app! See you again!"
-    send_sample_email()
-    mail_admins(
-        subject="Goodbye from Storefront",
-        message="goodbye",
-        html_message="A user has just said goodbye from the Project app view.")
+    send_template_mail()
+    # send_sample_email()
+    # mail_admins(
+    #     subject="Goodbye from Storefront",
+    #     message="goodbye",
+    #     html_message="A user has just said goodbye from the Project app view.")
     return render(request, 'bye.html', {'goodbye_message': goodbye_message})
 
 
