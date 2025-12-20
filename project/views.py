@@ -3,18 +3,20 @@ from django.db.models import Q, F, Func, Value
 from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Min, Max, Avg, Sum
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import send_mail, BadHeaderError, mail_admins
+from django.core.mail import EmailMessage, BadHeaderError, mail_admins
 from store.models import Product, OrderItem, Order, Customer
 from tags.models import TaggedItem
 
 
 def send_sample_email():
     try:
-        send_mail(
+        message = EmailMessage(
             subject="Test Email from Storefront",
-            message="This is a test email sent from the Storefront application.",
+            body="This is a test email sent from the Storefront application.",
             from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
-            recipient_list=["admin@storefront.com", "pavankumarsai66@gmail.com"])
+            to=["admin@storefront.com", "pavankumarsai66@gmail.com"])
+        message.attach_file('media/product/images/sample.png')
+        message.send()
     except BadHeaderError:
         print("Invalid header found while sending email.")
 
