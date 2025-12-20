@@ -174,3 +174,13 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
     "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
 }
+
+# Running smtp4dev in local docker container
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "localhost"
+EMAIL_PORT=2525
+EMAIL_HOST_USER = "admin"
+EMAIL_HOST_PASSWORD = "admin"
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = "store@storefront.com"
+ADMINS = [("admin", "admin@storefront.com"), ("pavan", "pavan@storefront.com")]

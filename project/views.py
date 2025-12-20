@@ -3,8 +3,36 @@ from django.db.models import Q, F, Func, Value
 from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Min, Max, Avg, Sum
 from django.contrib.contenttypes.models import ContentType
+from django.core.mail import send_mail, BadHeaderError, mail_admins
 from store.models import Product, OrderItem, Order, Customer
 from tags.models import TaggedItem
+
+
+def send_sample_email():
+    try:
+        send_mail(
+            subject="Test Email from Storefront",
+            message="This is a test email sent from the Storefront application.",
+            from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
+            recipient_list=["admin@storefront.com", "pavankumarsai66@gmail.com"])
+    except BadHeaderError:
+        print("Invalid header found while sending email.")
+
+def say_goodbye_to_my_project(request):
+    goodbye_message = "Goodbye from Project app! See you again!"
+    send_sample_email()
+    mail_admins(
+        subject="Goodbye from Storefront",
+        message="goodbye",
+        html_message="A user has just said goodbye from the Project app view.")
+    return render(request, 'bye.html', {'goodbye_message': goodbye_message})
+
+
+
+
+
+
+
 
 # Create your views here.
 
@@ -13,9 +41,9 @@ def say_hello_to_my_project(request):
     query_set = Product.objects.filter(Q(name__icontains="coffee") | Q(unit_price__gte=20, inventory__gte=25))
     products = list(Product.objects.filter(unit_price__gt=F('inventory')))
 
-    customer_query_set = Customer.objects.annotate(
-        full_name=Func(F('first_name'), F('last_name'), function="CONCAT_WS", template="%(function)s(' ',%(expressions)s)"),
-        full_name_without_func=Concat('first_name', Value(' '), 'last_name')
+    customer_query_set = Customer.objects.select_related('user').annotate(
+        full_name=Func(F('user__first_name'), F('user__last_name'), function="CONCAT_WS", template="%(function)s(' ',%(expressions)s)"),
+        full_name_without_func=Concat('user__first_name', Value(' '), 'user__last_name')
     )
     print(list(customer_query_set))
     # count = Product.objects.filter(name__icontains="coffee").count()
@@ -50,11 +78,6 @@ def get_last_5_order_items(request):
 def get_last_5_orders(request):
     last_5_orders = Order.objects.select_related('customer').prefetch_related('items__product').order_by('-placed_at')[:5]
     return render(request, 'orders.html', {'orderitems': last_5_orders})
-
-def say_goodbye_to_my_project(request):
-    goodbye_message = "Goodbye from Project app! See you again!"
-    return render(request, 'bye.html', {'goodbye_message': goodbye_message})
-
 
 def aggregate_example(request):
     result = Product.objects.aggregate(
