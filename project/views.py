@@ -3,7 +3,7 @@ from django.db.models import Q, F, Func, Value
 from django.db.models.functions import Concat
 from django.db.models.aggregates import Count, Min, Max, Avg, Sum
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import EmailMessage, BadHeaderError, mail_admins
+from django.core.mail import EmailMessage, mail_admins
 from templated_email import send_templated_mail
 
 
@@ -41,7 +41,7 @@ def send_sample_email():
             to=["admin@storefront.com"])
         message.attach_file('media/product/images/sample.png')
         message.send()
-    except BadHeaderError:
+    except ValueError:
         print("Invalid header found while sending email.")
 
 def say_goodbye_to_my_project(request):
