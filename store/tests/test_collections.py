@@ -1,8 +1,10 @@
 from rest_framework import status
-from rest_framework.test import APIClient
 from django.contrib.auth.models import User
+
+from model_bakery import baker
 import pytest
 
+from store.models import Collection
 
 @pytest.fixture
 def create_collection(api_client):
@@ -49,3 +51,28 @@ class TestCreateCollection:
     @pytest.mark.skip(reason="Skipping test for demonstration purposes")
     def test_skip_this_test(self):
         print("Skipping test for demonstration purposes")
+
+
+
+
+@pytest.mark.django_db
+class TestRetrieveCollection:
+    def test_get_collection_if_no_collection_matches_returns_404(self, api_client):
+        id = 'non_existing_id'
+        response = api_client.get(f'/store/collections/{id}/')
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+    
+    def test_get_collection_collection_exists_returns_200(self, api_client):
+        #Arrange
+        collection = baker.make(Collection)
+
+        #Act
+        response = api_client.get(f'/store/collections/{collection.id}/')
+
+        #Assert
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data == {
+            'id': collection.id,
+            'title': collection.title,
+            'products_count': 0
+        }
