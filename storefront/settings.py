@@ -184,3 +184,17 @@ EMAIL_HOST_PASSWORD = "admin"
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = "store@storefront.com"
 ADMINS = [("admin", "admin@storefront.com"), ("pavan", "pavan@storefront.com")]
+
+
+
+#Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/1'
+
+# CELERY_BEAT_SCHEDULE = {
+#     'my_task_name': {
+#         'task': 'project.tasks.call_after_delay',
+#         'schedule': timedelta(seconds=60), # or crontab(minute='*/1') for every minute
+#         'args': (),
+#         'kwargs': {},
+# }
+# }

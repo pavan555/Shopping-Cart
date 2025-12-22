@@ -16,6 +16,9 @@ djangorestframework-simplejwt = "*"
 pillow = "*"
 django-cors-headers = "*"
 django-templated-email = "*"
+celery = "*"
+redis = "*"
+flower = "*"
 
 [dev-packages]
 

@@ -6,8 +6,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMessage, BadHeaderError, mail_admins
 from templated_email import send_templated_mail
 
+
 from store.models import Product, OrderItem, Order, Customer
 from tags.models import TaggedItem
+from .tasks import notify_customers
+
 
 def send_template_mail():
     try:
@@ -43,7 +46,8 @@ def send_sample_email():
 
 def say_goodbye_to_my_project(request):
     goodbye_message = "Goodbye from Project app! See you again!"
-    send_template_mail()
+    notify_customers.delay('hello')
+    # send_template_mail()
     # send_sample_email()
     # mail_admins(
     #     subject="Goodbye from Storefront",
